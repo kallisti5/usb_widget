@@ -23,6 +23,17 @@
 #define UPDATE_PULSE_MODE			(1<<3)
 
 
+struct payload {
+	int static_brightness;
+	int pulse_speed;
+	int pulse_table;
+	int pulse_asleep;
+	int pulse_awake;
+	int requires_update;
+	char phys[64];
+};
+
+
 class KnobDevice
 {
 public:
@@ -34,12 +45,18 @@ public:
 			const char*			Name()
 									{ return fName; }
 
+protected:
+			status_t			LedPulse(int brightness, int speed,
+									int asleep, int awake);
+
 private:
 			usb_device			fDevice;
 			const char*			fName;
 				// Device name
 	volatile bool				fBusy;
 				// Is currently busy?
+
+			struct payload*		fPayload;
 };
 
 
