@@ -163,3 +163,79 @@ init_driver()
 }
 
 
+void
+uninit_driver()
+{
+	gUSBModule->uninstall_notify(DRIVER_NAME);
+	mutex_lock(&gDriverLock);
+
+	for (int32 i = 0; i < MAX_DEVICES; i++) {
+		if (gKnobDevices[i]) {
+			delete gKnobDevices[i];
+			gKnobDevices[i] = NULL;
+		}
+	}
+
+	for (int32 i = 0; gDeviceNames[i]; i++) {
+		free(gDeviceNames[i]);
+		gDeviceNames[i] = NULL;
+	}
+
+	mutex_destroy(&gDriverLock);
+	put_module(B_USB_MODULE_NAME);
+
+}
+
+
+const char **
+publish_devices()
+{
+	for (int32 i = 0; gDeviceNames[i]; i++) {
+		free(gDeviceNames[i]);
+		gDeviceNames[i] = NULL;
+	}
+
+	DriverSmartLock driverLock; // released on exit
+
+	int32 deviceCount = 0;
+	for (int32 i = 0; i < MAX_DEVICES; i++) {
+		if (gKnobDevices[i] == NULL)
+			continue;
+
+		gDeviceNames[deviceCount] = (char *)malloc(strlen(sDeviceBaseName) + 4);
+		if (gDeviceNames[deviceCount]) {
+			sprintf(gDeviceNames[deviceCount], "%s%ld", sDeviceBaseName, i);
+			TRACE("Debug: publishing %s\n", gDeviceNames[deviceCount]);
+			deviceCount++;
+		} else
+			TRACE("Error: out of memory during allocating device name.\n");
+	}
+
+	gDeviceNames[deviceCount] = NULL;
+	return (const char **)&gDeviceNames[0];
+}
+
+
+device_hooks *
+find_device(const char *name)
+{
+	static device_hooks deviceHooks = {
+		NULL,			   /* select */
+		NULL,			   /* select */
+		NULL,			   /* select */
+		NULL,			   /* select */
+		NULL,			   /* select */
+		NULL,			   /* select */
+		//usb_beceem_open,
+		//usb_beceem_close,
+		//usb_beceem_free,
+		//usb_beceem_control,
+		//usb_beceem_read,
+		//usb_beceem_write,
+		NULL,			   /* select */
+		NULL				/* deselect */
+	};
+
+	return &deviceHooks;
+}
+

@@ -28,12 +28,17 @@
 #define MAX_DEVICES 4
 
 
-extern "C" {
-status_t		usb_widget_device_added(usb_device device, void **cookie);
-status_t		usb_widget_device_removed(void *cookie);
+extern usb_module_info *gUSBModule;
 
-status_t		init_hardware();
-void			uninit_driver();
+extern "C" {
+status_t usb_widget_device_added(usb_device device, void **cookie);
+status_t usb_widget_device_removed(void *cookie);
+
+status_t init_hardware();
+void uninit_driver();
+
+const char **publish_devices();
+device_hooks *find_device(const char *name);
 }
 
 
