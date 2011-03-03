@@ -8,4 +8,5 @@ UsePrivateKernelHeaders ;
 
 KernelAddon usb_widget :
 	Driver.cpp
+	KnobDevice.cpp
 ;

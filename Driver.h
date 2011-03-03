@@ -15,6 +15,13 @@
 #include <util/kernel_cpp.h>
 #include <USB3.h>
 
+#include <malloc.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "KnobDevice.h"
+
 #define DRIVER_NAME "usb_widget"
 #define TRACE(x...) dprintf(DRIVER_NAME ": " x)
 
@@ -22,12 +29,11 @@
 
 
 extern "C" {
-			status_t			usb_widget_device_added(usb_device device,
-									void **cookie);
-			status_t			usb_widget_device_removed(void *cookie);
+status_t		usb_widget_device_added(usb_device device, void **cookie);
+status_t		usb_widget_device_removed(void *cookie);
 
-			status_t			init_hardware();
-			void				uninit_driver();
+status_t		init_hardware();
+void			uninit_driver();
 }
 
 
