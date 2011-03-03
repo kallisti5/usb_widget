@@ -10,28 +10,19 @@
 
 
 #include "Driver.h"
+#include <support/ByteOrder.h>
 
 
-#define SET_STATIC_BRIGHTNESS		0x01
-#define SET_PULSE_ASLEEP			0x02
-#define SET_PUSLE_AWAKE				0x03
-#define SET_PULSE_MODE				0x04
+#define SET_STATIC_BRIGHTNESS	0x01
+#define SET_PULSE_ASLEEP		0x02
+#define SET_PULSE_AWAKE			0x03
+#define SET_PULSE_MODE			0x04
 
-#define UPDATE_STATIC_BRIGHTNESS	(1<<0)
-#define UPDATE_PULSE_ASLEEP			(1<<1)
-#define UPDATE_PULSE_AWAKE			(1<<2)
-#define UPDATE_PULSE_MODE			(1<<3)
-
-
-struct payload {
-	int static_brightness;
-	int pulse_speed;
-	int pulse_table;
-	int pulse_asleep;
-	int pulse_awake;
-	int requires_update;
-	char phys[64];
-};
+#if __BYTE_ORDER == __BIG_ENDIAN
+#define cpu_to_le16(x) (B_SWAP_INT16(x))
+#else
+#define cpu_to_le16(x) (x)
+#endif
 
 
 class KnobDevice
@@ -46,17 +37,14 @@ public:
 									{ return fName; }
 
 protected:
+			status_t			WriteState(int parameter, int value);
 			status_t			LedPulse(int brightness, int speed,
 									int asleep, int awake);
 
 private:
 			usb_device			fDevice;
 			const char*			fName;
-				// Device name
 	volatile bool				fBusy;
-				// Is currently busy?
-
-			struct payload*		fPayload;
 };
 
 
