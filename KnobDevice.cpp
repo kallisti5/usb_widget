@@ -11,6 +11,8 @@
 
 
 KnobDevice::KnobDevice(usb_device device, const char *description)
+	:
+	fDevice(device)
 {
 
 }
@@ -21,3 +23,10 @@ KnobDevice::~KnobDevice()
 
 }
 
+
+status_t
+KnobDevice::ProbeDevice()
+{
+
+	return B_OK;
+}

@@ -52,8 +52,7 @@ create_knob_device(usb_device device)
 		return NULL;
 	}
 
-#define IDS(__vendor, __product) (((__vendor) << 16) | (__product))
-
+	#define IDS(__vendor, __product) (((__vendor) << 16) | (__product))
 	switch(IDS(deviceDescriptor->vendor_id, deviceDescriptor->product_id)) {
 		case IDS(0x077d, 0x0410):
 			return new KnobDevice(device, "Griffin PowerMate USB");
@@ -74,8 +73,7 @@ usb_widget_device_added(usb_device device, void **cookie)
 		return ENODEV;
 	}
 
-	//status_t status = knobDevice->SetupDevice(false);
-	status_t status = B_OK;
+	status_t status = knobDevice->ProbeDevice();
 	if (status < B_OK) {
 		delete knobDevice;
 		return status;

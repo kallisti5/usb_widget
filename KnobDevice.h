@@ -19,6 +19,11 @@ public:
 									const char *description);
 	virtual						~KnobDevice();
 
+			status_t			ProbeDevice();
+
+private:
+			usb_device			fDevice;
+				// Usb Device Instance
 };
 
 
