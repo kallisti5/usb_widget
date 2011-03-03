@@ -12,7 +12,8 @@
 
 KnobDevice::KnobDevice(usb_device device, const char *description)
 	:
-	fDevice(device)
+	fDevice(device),
+	fName(description)
 {
 
 }

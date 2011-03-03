@@ -12,6 +12,17 @@
 #include "Driver.h"
 
 
+#define SET_STATIC_BRIGHTNESS		0x01
+#define SET_PULSE_ASLEEP			0x02
+#define SET_PUSLE_AWAKE				0x03
+#define SET_PULSE_MODE				0x04
+
+#define UPDATE_STATIC_BRIGHTNESS	(1<<0)
+#define UPDATE_PULSE_ASLEEP			(1<<1)
+#define UPDATE_PULSE_AWAKE			(1<<2)
+#define UPDATE_PULSE_MODE			(1<<3)
+
+
 class KnobDevice
 {
 public:
@@ -20,10 +31,15 @@ public:
 	virtual						~KnobDevice();
 
 			status_t			ProbeDevice();
+			const char*			Name()
+									{ return fName; }
 
 private:
 			usb_device			fDevice;
-				// Usb Device Instance
+			const char*			fName;
+				// Device name
+	volatile bool				fBusy;
+				// Is currently busy?
 };
 
 

@@ -25,8 +25,12 @@ usb_module_info *gUSBModule = NULL;
 
 // Supported USB Widget Devices
 usb_support_descriptor gSupportedDevices[] = {
-	{ 0, 0, 0, 0x077d, 0x0410}
+	{ 0, 0, 0, 0x077d, 0x0410},
 		// "Griffin PowerMate USB"
+	{ 0, 0, 0, 0x077d, 0x04AA},
+		// "Griffin soundKnob USB"
+	{ 0, 0, 0, 0x05f3, 0x0240}
+		// "Contour Jog and Shuttle"
 };
 
 
@@ -56,6 +60,10 @@ create_knob_device(usb_device device)
 	switch(IDS(deviceDescriptor->vendor_id, deviceDescriptor->product_id)) {
 		case IDS(0x077d, 0x0410):
 			return new KnobDevice(device, "Griffin PowerMate USB");
+		case IDS(0x077d, 0x04AA):
+			return new KnobDevice(device, "Griffin soundKnob USB");
+		case IDS(0x05f3, 0x0240):
+			return new KnobDevice(device, "Contour Jog and Shuttle USB");
 	}
 	return NULL;
 }
@@ -86,7 +94,8 @@ usb_widget_device_added(usb_device device, void **cookie)
 		gKnobDevices[i] = knobDevice;
 		*cookie = knobDevice;
 
-		TRACE("Debug: New device is added at %ld.\n", i);
+		TRACE("Debug: New device '%s' is added at %ld.\n",
+			knobDevice->Name(), i);
 		return B_OK;
 	}
 
@@ -224,12 +233,12 @@ find_device(const char *name)
 		NULL,			   /* select */
 		NULL,			   /* select */
 		NULL,			   /* select */
-		//usb_beceem_open,
-		//usb_beceem_close,
-		//usb_beceem_free,
-		//usb_beceem_control,
-		//usb_beceem_read,
-		//usb_beceem_write,
+		//usb_knob_open,
+		//usb_knob_close,
+		//usb_knob_free,
+		//usb_knob_control,
+		//usb_knob_read,
+		//usb_knob_write,
 		NULL,			   /* select */
 		NULL				/* deselect */
 	};
