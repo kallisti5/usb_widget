@@ -61,7 +61,7 @@ create_knob_device(usb_device device)
 		case IDS(0x077d, 0x0410):
 			return new KnobDevice(device, "Griffin PowerMate USB");
 		case IDS(0x077d, 0x04AA):
-			return new KnobDevice(device, "Griffin soundKnob USB");
+			return new KnobDevice(device, "Griffin SoundKnob USB");
 		case IDS(0x05f3, 0x0240):
 			return new KnobDevice(device, "Contour Jog and Shuttle USB");
 	}
@@ -227,19 +227,19 @@ device_hooks *
 find_device(const char *name)
 {
 	static device_hooks deviceHooks = {
-		NULL,			   /* select */
-		NULL,			   /* select */
-		NULL,			   /* select */
-		NULL,			   /* select */
-		NULL,			   /* select */
-		NULL,			   /* select */
+		NULL,				/* select */
+		NULL,				/* select */
+		NULL,				/* select */
+		NULL,				/* select */
+		NULL,				/* select */
+		NULL,				/* select */
 		//usb_knob_open,
 		//usb_knob_close,
 		//usb_knob_free,
 		//usb_knob_control,
 		//usb_knob_read,
 		//usb_knob_write,
-		NULL,			   /* select */
+		NULL,				/* select */
 		NULL				/* deselect */
 	};
 

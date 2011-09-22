@@ -33,10 +33,10 @@ KnobDevice::ProbeDevice()
 	size_t written = 0;
 	// device, uint8 requesttype, uint8 request,  uint16 value, uint16 index, uint16 length, void *data
 	status_t result = gUSBModule->send_request(fDevice,
-		0x21,
-		0x0a,
+		USB_REQTYPE_INTERFACE_OUT | USB_REQTYPE_CLASS,
+		USB_REQUEST_GET_INTERFACE,
 		0,
-		0,
+		0, // bInterfaceNumber?
 		0, NULL,
 		&written);
 
@@ -45,9 +45,15 @@ KnobDevice::ProbeDevice()
 		return result;
 	}
 
+	// test our communications... gives a nice flicker during powerup
 	LedPulse(0, 255, 0, 0);
+	snooze(5000);
+	LedPulse(255, 255, 1, 1);
+	snooze(5000);
+	LedPulse(0, 255, 1, 1);
+	snooze(50000);
+	LedPulse(255, 255, 1, 1);
 
-	LedPulse(0xFF, 500, 0, 1);
 	return B_OK;
 }
 
@@ -63,14 +69,12 @@ KnobDevice::WriteState(uint16 parameter, uint16 value)
 
 	fBusy = true;
 	// device, uint8 requesttype, uint8 request,  uint16 value, uint16 index, uint16 length, void *data
-	size_t written = 0;
 	status_t result = gUSBModule->send_request(fDevice,
 		USB_REQTYPE_VENDOR | USB_REQTYPE_INTERFACE_OUT,
 		USB_REQUEST_CLEAR_FEATURE,
 		B_HOST_TO_LENDIAN_INT16(parameter),
 		B_HOST_TO_LENDIAN_INT16(value),
-		0, NULL,
-		&written);
+		0, NULL, NULL);
 
 	if (result != B_OK) {
 		TRACE("%s: Couldn't communicate over USB to device!\n", __func__);
@@ -85,21 +89,22 @@ KnobDevice::WriteState(uint16 parameter, uint16 value)
 status_t
 KnobDevice::LedPulse(uint16 brightness, uint16 speed, uint16 asleep, uint16 awake)
 {
-	WriteState(SET_PULSE_ASLEEP, !!asleep);
-	WriteState(SET_PULSE_AWAKE, !!awake);
-	uint16 op;
-	uint16 arg;
+	WriteState(SET_PULSE_ASLEEP, asleep ? 1 : 0);
+	WriteState(SET_PULSE_AWAKE, awake ? 1 : 0);
+
+	uint16 operation;
+	uint16 value;
 	if (speed < 255) {
-		op = 0;                   // divide
-		arg = 255 - speed;
+		operation = 0;			// divide
+		value = 255 - speed;
 	} else if (speed > 255) {
-		op = 2;                   // multiply
-		arg = speed - 255;
+		operation = 2;			// multiply
+		value = speed - 255;
 	} else {
-		op = 1;                   // normal speed
-		arg = 0;                  // can be any value
+		operation = 1;			// normal speed
+		value = 0;				// can be any value
 	}
-	WriteState((1 << 8) | SET_PULSE_MODE, (arg << 8 | op));
+	WriteState((0 << 8) | SET_PULSE_MODE, (value << 8 | operation));
 
 	WriteState(SET_STATIC_BRIGHTNESS, brightness);
 	return B_OK;
