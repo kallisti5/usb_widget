@@ -50,8 +50,8 @@ KnobDevice::WriteState(int parameter, int value)
 
 	TRACE("RequestType = 0x%X\n", USB_REQTYPE_VENDOR | USB_REQTYPE_INTERFACE_OUT);
 	TRACE("Request = 0x%X\n", USB_REQUEST_CLEAR_FEATURE);
-	TRACE("Index = 0x%04x\n", cpu_to_le16(parameter));
-	TRACE("Value = 0x%04x\n", cpu_to_le16(value));
+	TRACE("Index = 0x%04x\n", B_HOST_TO_LENDIAN_INT16(parameter));
+	TRACE("Value = 0x%04x\n", B_HOST_TO_LENDIAN_INT16(value));
 
 	fBusy = true;
 	// device, uint8 requesttype, uint8 request,  uint16 value, uint16 index, uint16 length, void *data
@@ -59,8 +59,8 @@ KnobDevice::WriteState(int parameter, int value)
 	status_t result = gUSBModule->send_request(fDevice,
 		USB_REQTYPE_VENDOR | USB_REQTYPE_INTERFACE_OUT,
 		USB_REQUEST_CLEAR_FEATURE,
-		cpu_to_le16(parameter),
-		cpu_to_le16(value),
+		B_HOST_TO_LENDIAN_INT16(parameter),
+		B_HOST_TO_LENDIAN_INT16(value),
 		0, NULL,
 		&written);
 

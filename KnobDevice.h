@@ -18,12 +18,6 @@
 #define SET_PULSE_AWAKE			0x03
 #define SET_PULSE_MODE			0x04
 
-#if __BYTE_ORDER == __BIG_ENDIAN
-#define cpu_to_le16(x) (B_SWAP_INT16(x))
-#else
-#define cpu_to_le16(x) (x)
-#endif
-
 
 class KnobDevice
 {
