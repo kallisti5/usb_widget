@@ -23,6 +23,7 @@ KnobDevice::KnobDevice(usb_device device, const char *description)
 
 KnobDevice::~KnobDevice()
 {
+	WriteState(SET_STATIC_BRIGHTNESS, 0x0);
 }
 
 
@@ -30,6 +31,7 @@ status_t
 KnobDevice::ProbeDevice()
 {
 	size_t written = 0;
+	// device, uint8 requesttype, uint8 request,  uint16 value, uint16 index, uint16 length, void *data
 	status_t result = gUSBModule->send_request(fDevice,
 		0x21,
 		0x0a,
@@ -38,20 +40,26 @@ KnobDevice::ProbeDevice()
 		0, NULL,
 		&written);
 
-	return LedPulse(0x80, 255, 1, 0);
+	if (result != B_OK) {
+		TRACE("%s: Couldn't communicate over USB to device!\n", __func__);
+		return result;
+	}
+
+	LedPulse(0, 255, 0, 0);
+
+	LedPulse(0xFF, 500, 0, 1);
+	return B_OK;
 }
 
 
 status_t
-KnobDevice::WriteState(int parameter, int value)
+KnobDevice::WriteState(uint16 parameter, uint16 value)
 {
 	if (fBusy == true)
 		return B_BUSY;
 
-	TRACE("RequestType = 0x%X\n", USB_REQTYPE_VENDOR | USB_REQTYPE_INTERFACE_OUT);
-	TRACE("Request = 0x%X\n", USB_REQUEST_CLEAR_FEATURE);
-	TRACE("Index = 0x%04x\n", B_HOST_TO_LENDIAN_INT16(parameter));
-	TRACE("Value = 0x%04x\n", B_HOST_TO_LENDIAN_INT16(value));
+	TRACE("%s: Parameter: 0x%" B_PRIX16 "; Value: 0x%" B_PRIX16 "\n",
+		__func__, parameter, value);
 
 	fBusy = true;
 	// device, uint8 requesttype, uint8 request,  uint16 value, uint16 index, uint16 length, void *data
@@ -64,7 +72,10 @@ KnobDevice::WriteState(int parameter, int value)
 		0, NULL,
 		&written);
 
-	TRACE("Bytes Written= %d\n", written);
+	if (result != B_OK) {
+		TRACE("%s: Couldn't communicate over USB to device!\n", __func__);
+		return result;
+	}
 
 	fBusy = false;
 	return result;
@@ -72,16 +83,25 @@ KnobDevice::WriteState(int parameter, int value)
 
 
 status_t
-KnobDevice::LedPulse(int brightness, int speed, int asleep, int awake)
+KnobDevice::LedPulse(uint16 brightness, uint16 speed, uint16 asleep, uint16 awake)
 {
-	WriteState(SET_PULSE_ASLEEP, 1);
-	WriteState(SET_PULSE_AWAKE, 1);
-	WriteState(SET_PULSE_MODE, 1);
-	WriteState(SET_STATIC_BRIGHTNESS, 0x80);
-	//WriteState(0x0002, 0x0001);
-	//WriteState(0x0003, 0x0000);
-	//WriteState(0x0004, 0x0001);
-	//WriteState(0x0001, 0x0080);
+	WriteState(SET_PULSE_ASLEEP, !!asleep);
+	WriteState(SET_PULSE_AWAKE, !!awake);
+	uint16 op;
+	uint16 arg;
+	if (speed < 255) {
+		op = 0;                   // divide
+		arg = 255 - speed;
+	} else if (speed > 255) {
+		op = 2;                   // multiply
+		arg = speed - 255;
+	} else {
+		op = 1;                   // normal speed
+		arg = 0;                  // can be any value
+	}
+	WriteState((1 << 8) | SET_PULSE_MODE, (arg << 8 | op));
+
+	WriteState(SET_STATIC_BRIGHTNESS, brightness);
 	return B_OK;
 }
 

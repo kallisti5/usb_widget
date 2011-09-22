@@ -13,6 +13,7 @@
 #include <support/ByteOrder.h>
 
 
+// device command codes
 #define SET_STATIC_BRIGHTNESS	0x01
 #define SET_PULSE_ASLEEP		0x02
 #define SET_PULSE_AWAKE			0x03
@@ -31,9 +32,9 @@ public:
 									{ return fName; }
 
 protected:
-			status_t			WriteState(int parameter, int value);
-			status_t			LedPulse(int brightness, int speed,
-									int asleep, int awake);
+			status_t			WriteState(uint16 parameter, uint16 value);
+			status_t			LedPulse(uint16 brightness, uint16 speed,
+									uint16 asleep, uint16 awake);
 
 private:
 			usb_device			fDevice;
